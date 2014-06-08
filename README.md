@@ -10,7 +10,7 @@ One click subscribe to Github Releases.
 2. Copy `XXX` from `http://localhost/?code=XXX&state=` (address bar)
 3. `$ node get_token.js XXX` (print "access_token")
 4. copy `JSON`*1
-5. install `github-releases-to-feedly.user.js`
+5. install [github-releases-to-feedly.user.js](https://raw.githubusercontent.com/azu/github-releases-to-feedly/master/github-releases-to-feedly.user.js)
 6. Run UserScript Command -> github-releases-to-feedly - Set UserInfo
 7. paste `JSON`
 

@@ -2,6 +2,9 @@
 
 One click subscribe to Github Releases.
 
+![repo](http://take.ms/2bbce)
+![watching](http://take.ms/FS6eT)
+
 ## Usage
 
 ### Get Feedly token

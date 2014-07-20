@@ -23,7 +23,7 @@ One click subscribe to Github Releases.
 Current Subscribe Tag : "Github"
 (If you want to change tag, please pull-requests)
 
-* Subscribe from Each repogiry
+* Subscribe from each repository
 * Subscribe from [Watched repositories](https://github.com/watching "Watched repositories")
 
 ![img](http://take.ms/qDycP)

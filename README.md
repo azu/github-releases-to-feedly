@@ -16,7 +16,7 @@ One click subscribe to Github Releases.
     * `$ node get_token.js XXX | pbcopy`
 5. install [github-releases-to-feedly.user.js](https://raw.githubusercontent.com/azu/github-releases-to-feedly/master/github-releases-to-feedly.user.js)
 6. Run UserScript Command -> github-releases-to-feedly - Set UserInfo
-7. paste `JSON`
+7. paste `JSON`*1
 
 ### Subscription
 

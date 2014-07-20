@@ -1,31 +1,32 @@
 {
-  "name": "github-releases-to-feedly",
-  "description": "subscribe github-releases RSS feed to feedly.",
-  "version": "0.0.1",
-  "homepage": "https://github.com/azu/github-releases-to-feedly/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/azu/github-releases-to-feedly.git"
-  },
-  "main": "index.js",
-  "scripts": {
-    "build":"browserify -x request index.js > github-releases-to-feedly.user.js",
-    "test": "mocha test/*.js"
-  },
-  "directories": {
-    "test": "test/"
-  },
-  "author": "azu",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/azu/github-releases-to-feedly/issues"
-  },
-  "devDependencies": {
-    "browserify": "^4.1.8",
-    "watchify": "^0.10.2"
-  },
-  "dependencies": {
-    "querystring": "^0.2.0",
-    "request": "^2.36.0",
-  }
+    "name": "github-releases-to-feedly",
+    "description": "subscribe github-releases RSS feed to feedly.",
+    "version": "0.0.1",
+    "homepage": "https://github.com/azu/github-releases-to-feedly/",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/azu/github-releases-to-feedly.git"
+    },
+    "main": "index.js",
+    "scripts": {
+        "build": "browserify index.js -o `git config greasemonkey.file || echo github-releases-to-feedly.user.js`",
+        "watch": "watchify index.js -o `git config greasemonkey.file || echo github-releases-to-feedly.user.js`",
+        "test": "mocha test/*.js"
+    },
+    "directories": {
+        "test": "test/"
+    },
+    "author": "azu",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/azu/github-releases-to-feedly/issues"
+    },
+    "devDependencies": {
+        "browserify": "^4.1.8",
+        "watchify": "^0.10.2"
+    },
+    "dependencies": {
+        "querystring": "^0.2.0",
+        "request": "^2.36.0"
+    }
 }

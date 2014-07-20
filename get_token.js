@@ -14,7 +14,7 @@ var params = {
     "grant_type": "authorization_code",
     "redirect_uri": "http://www.feedly.com/feedly.html",
     "code": code
-}
+};
 var options = {
     url: 'https://cloud.feedly.com/v3/auth/token?' + qs.stringify(params),
     method: 'POST',

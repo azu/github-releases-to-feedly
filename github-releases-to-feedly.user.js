@@ -17,7 +17,7 @@ module.exports = function () {
     button.addEventListener("click", onSubscribe);
     insertMenu.appendChild(button);
 }
-},{"../lib/subscriber":8}],2:[function(require,module,exports){
+},{"../lib/subscriber":7}],2:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
  * LICENSE : MIT
@@ -50,7 +50,8 @@ var watching = function watching() {
     });
 };
 module.exports = watching
-},{"../lib/subscriber":8}],3:[function(require,module,exports){
+},{"../lib/subscriber":7}],3:[function(require,module,exports){
+console.log(location);
 // ==UserScript==
 // @name        Subscribe Github Releases
 // @namespace   http://efcl.info/
@@ -59,6 +60,10 @@ module.exports = watching
 // @include     https://github.com/*/*
 // @include     https://github.com/watching
 // @version     1
+// @grant GM_getValue
+// @grant GM_setValue
+// @grant GM_registerMenuCommand
+// @grant GM_xmlhttpRequest
 // ==/UserScript==
 "use strict";
 var config = require("./lib/user-info");
@@ -72,13 +77,13 @@ if (location.href === "https://github.com/watching") {
     require("./dipatch/repogitory")();
 }
 
-},{"./dipatch/repogitory":1,"./dipatch/watching":2,"./lib/user-info":9}],4:[function(require,module,exports){
+},{"./dipatch/repogitory":1,"./dipatch/watching":2,"./lib/user-info":8}],4:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
  * LICENSE : MIT
  */
 "use strict";
-var request = require('./node-request');
+var request = require('./gm_request');
 function Feedly(userInfo) {
     if(!userInfo["access_token"] ||!userInfo["id"] ) {
         alert("You have set userInfo: User script command -> github-releases-to-feedly - Set UserInfo");
@@ -106,7 +111,7 @@ Feedly.prototype.feedlizeURL = function (url) {
         return "feed/" + url;
     }
     return url;
-}
+};
 Feedly.prototype.subscribe = function (url, categories, cb) {
     var input = {
         id: this.feedlizeURL(url)
@@ -144,9 +149,9 @@ Feedly.prototype.subscribe = function (url, categories, cb) {
         path: '/v3/subscriptions',
         form: input
     }, cb);
-}
+};
 module.exports = Feedly;
-},{"./node-request":6}],5:[function(require,module,exports){
+},{"./gm_request":5}],5:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
  * LICENSE : MIT
@@ -163,22 +168,8 @@ module.exports = function (options, callback) {
         callback(new Error(response.statusText), response.responseHeaders, response.responseText)
     };
     GM_xmlhttpRequest(options);
-}
+};
 },{}],6:[function(require,module,exports){
-/**
- * Created by azu on 2014/06/08.
- * LICENSE : MIT
- */
-"use strict";
-
-module.exports = (function (options, callback) {
-    if (typeof GM_xmlhttpRequest !== "undefined") {
-        return require("./gm_request");
-    }else{
-        return require("request")
-    }
-})()
-},{"./gm_request":5,"request":"bQcVMY"}],7:[function(require,module,exports){
 'use strict';
 function notifyMessage(message, options, callback) {
     if (Notification && Notification.permission === 'granted') {
@@ -212,7 +203,7 @@ function notifyMessageAsPromise(message, options) {
     });
 }
 module.exports = notifyMessageAsPromise;
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
  * LICENSE : MIT
@@ -249,7 +240,7 @@ function subscribeRepo(repo) {
     });
 }
 module.exports.subscribeRepo = subscribeRepo;
-},{"./feedly-client":4,"./notification":7,"./user-info":9}],9:[function(require,module,exports){
+},{"./feedly-client":4,"./notification":6,"./user-info":8}],8:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
  * LICENSE : MIT

@@ -32,7 +32,9 @@ Current Subscribe Tag : "Github"
 
 ```sh
 npm install
-npm run-script build
+npm run-script watch
+# dist
+npm run-script dist
 ```
 
 ## Contributing

@@ -21,7 +21,7 @@ One click subscribe to Github Releases.
 ### Subscription
 
 Current Subscribe Tag : "Github"
-(If you change tag, please pull-requests)
+(If you want to change tag, please pull-requests)
 
 * Subscribe from Each repogiry
 * Subscribe from [Watched repositories](https://github.com/watching "Watched repositories")

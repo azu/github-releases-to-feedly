@@ -10,7 +10,7 @@ Usage
 
 ### Get Feedly token
 
-1. [OAuth Feedly API](https://cloud.feedly.com/v3/auth/auth?client_id=feedly&redirect_uri=http://localhost&scope=https://cloud.feedly.com/subscriptions&response_type=code&migrate=false)
+1. Sign-in from [OAuth Feedly API](https://cloud.feedly.com/v3/auth/auth?client_id=feedly&redirect_uri=http://localhost&scope=https://cloud.feedly.com/subscriptions&response_type=code&migrate=false)
 2. Copy `XXX` from `http://localhost/?code=XXX&state=` (address bar)
 3. `$ node get_token.js XXX` (print "access_token")
 4. copy `JSON`*1

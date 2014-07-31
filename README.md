@@ -15,7 +15,11 @@ Usage
 3. `$ node get_token.js XXX` (print "access_token")
 4. copy `JSON`*1
 	- Tips: 3 and 4 at a time.
-	- `$ node get_token.js XXX | pbcopy`
+	``` sh
+	git clone https://github.com/azu/github-releases-to-feedly.git
+	cd github-releases-to-feedly
+	node get_token.js XXX | pbcopy
+	```
 5. install [github-releases-to-feedly.user.js](https://raw.githubusercontent.com/azu/github-releases-to-feedly/master/github-releases-to-feedly.user.js)
 6. Run UserScript Command -> github-releases-to-feedly - Set UserInfo
 7. paste `JSON`*1

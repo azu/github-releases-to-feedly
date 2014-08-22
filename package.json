@@ -1,7 +1,7 @@
 {
   "name": "github-releases-to-feedly",
   "description": "subscribe github-releases RSS feed to feedly.",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "homepage": "https://github.com/azu/github-releases-to-feedly/",
   "repository": {
     "type": "git",

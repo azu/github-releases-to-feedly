@@ -4,8 +4,10 @@
  */
 "use strict";
 var subscriber = require("../lib/subscriber");
+var gh = require('github-url-to-object');
 function onSubscribe() {
-    var repo = document.getElementsByName("nwo")[0].value;
+    var repoObject = gh(location.href);
+    var repo = repoObject.user + "/" + repoObject.repo;
     subscriber.subscribeRepo(repo);
 }
 
@@ -15,4 +17,4 @@ module.exports = function () {
     button.textContent = "Subscribe";
     button.addEventListener("click", onSubscribe);
     insertMenu.appendChild(button);
-}
+};

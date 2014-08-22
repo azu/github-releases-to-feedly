@@ -51,7 +51,6 @@ var watching = function watching() {
 };
 module.exports = watching
 },{"../lib/subscriber":7}],3:[function(require,module,exports){
-console.log(location);
 // ==UserScript==
 // @name        Subscribe Github Releases
 // @namespace   http://efcl.info/

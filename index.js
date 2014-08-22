@@ -1,4 +1,3 @@
-console.log(location);
 // ==UserScript==
 // @name        Subscribe Github Releases
 // @namespace   http://efcl.info/

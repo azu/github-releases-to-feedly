@@ -87,7 +87,7 @@ if (location.href === "https://github.com/watching") {
 "use strict";
 var request = require('./gm_request');
 function Feedly(userInfo) {
-    if(!userInfo["access_token"] ||!userInfo["id"] ) {
+    if (!userInfo["access_token"] || !userInfo["id"]) {
         alert("You have set userInfo: User script command -> github-releases-to-feedly - Set UserInfo");
     }
     this.userInfo = userInfo;
@@ -108,6 +108,21 @@ Feedly.prototype.request = function (parameters, callback) {
     };
     request(options, callback);
 };
+Feedly.prototype.refreshToken = function (callback) {
+    var that = this;
+    this.request({
+        method: 'POST',
+        path: '/v3/auth/token',
+        form: {
+            refresh_token : that.userInfo.refresh_token,
+            client_id : "feedly",
+            client_secret : "0XP4XQ07VVMDWBKUHTJM4WUQ",
+            grant_type : "refresh_token"
+        }
+    }, callback);
+
+};
+
 Feedly.prototype.feedlizeURL = function (url) {
     if (!url.match(/^feed\//)) {
         return "feed/" + url;
@@ -165,13 +180,13 @@ module.exports = function (options, callback) {
     }
     options.onload = function onload(response) {
         if (response.status === 200 || response.status === 201) {
-            callback(null, response.responseHeaders, response.responseText)
+            callback(null, response, response.responseText)
         } else {
-            callback(new Error(response.statusText), response.responseHeaders, response.responseText)
+            callback(new Error(response.statusText), response, response.responseText)
         }
     };
     options.onerror = function onerror(response) {
-        callback(new Error(response.statusText), response.responseHeaders, response.responseText)
+        callback(new Error(response.statusText), response, response.responseText)
     };
     GM_xmlhttpRequest(options);
 };
@@ -225,13 +240,18 @@ function subscribeRepo(repo) {
     var url = "https://github.com/" + repo + "/releases.atom";
     feedly.subscribe(url, categories, function (error, res, body) {
         if (error) {
+            feedly.refreshToken(function (refreshError, response, body) {
+                config.setUserInfo(body);
+                console.log("retry", body);
+                subscribeRepo(repo);
+            });
             console.error(JSON.parse(body));
             notifyMessageAsPromise("Error", {
                 body: repo,
                 icon: "https://github.com/favicon.ico"
             }, function (notification) {
                 notification.onshow = function () {
-                    setTimeout(n.close, 1000);
+                    setTimeout(notification.close, 1000);
                 }
             });
             return;

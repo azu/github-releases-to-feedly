@@ -23,8 +23,8 @@
     "url": "https://github.com/azu/github-releases-to-feedly/issues"
   },
   "devDependencies": {
-    "browserify": "^5.10.1",
-    "watchify": "^1.0.2"
+    "browserify": "^7.0.0",
+    "watchify": "^2.1.1"
   },
   "dependencies": {
     "github-url-to-object": "^1.4.0",

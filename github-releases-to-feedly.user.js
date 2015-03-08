@@ -242,13 +242,12 @@ function subscribeRepo(repo) {
         if (error) {
             feedly.refreshToken(function (refreshError, response, body) {
                 if (refreshError) {
+                    console.error("Error feedly.refreshToken: ",JSON.parse(body));
                     throw refreshError;
                 }
                 config.setUserInfo(body);
-                console.log("retry", body);
                 subscribeRepo(repo);
             });
-            console.error(JSON.parse(body));
             notifyMessageAsPromise("Error", {
                 body: repo,
                 icon: "https://github.com/favicon.ico"

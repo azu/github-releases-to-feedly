@@ -80,29 +80,95 @@ if (location.href === "https://github.com/watching") {
 }
 
 },{"./dipatch/repogitory":1,"./dipatch/watching":2,"./lib/user-info":8}],4:[function(require,module,exports){
-// LICENSE : MIT
+/**
+ * Created by azu on 2014/06/08.
+ * LICENSE : MIT
+ */
 "use strict";
 var request = require('./gm_request');
-/**
- * @param {string} userInfo
- * @constructor
- */
-function IFTTTClient(userInfo) {
-    this.baseURI = userInfo;
+function Feedly(userInfo) {
+    if (!userInfo["access_token"] || !userInfo["id"]) {
+        alert("You have set userInfo: User script command -> github-releases-to-feedly - Set UserInfo");
+    }
+    this.userInfo = userInfo;
+    this.baseURI = "https://cloud.feedly.com";
 }
-IFTTTClient.prototype.subscribe = function (url, callback) {
-    var data = {"value1": url};
+Feedly.prototype.request = function (parameters, callback) {
+    var method = parameters.method;
+    var path = parameters.path;
+    var form = parameters.form;
     var options = {
-        method: "POST",
-        url: this.baseURI,
-        body: JSON.stringify(data),
+        method: method,
+        url: this.baseURI + path,
+        body: JSON.stringify(form),
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": "OAuth " + this.userInfo["access_token"]
         }
     };
     request(options, callback);
 };
-module.exports = IFTTTClient;
+Feedly.prototype.refreshToken = function (callback) {
+    var that = this;
+    console.log("refresh token:", that.userInfo);
+    this.request({
+        method: 'POST',
+        path: '/v3/auth/token',
+        form: {
+            refresh_token: that.userInfo["refresh_token"],
+            client_id: "feedly",
+            client_secret: "0XP4XQ07VVMDWBKUHTJM4WUQ",
+            grant_type: "refresh_token"
+        }
+    }, callback);
+
+};
+
+Feedly.prototype.feedlizeURL = function (url) {
+    if (!url.match(/^feed\//)) {
+        return "feed/" + url;
+    }
+    return url;
+};
+Feedly.prototype.subscribe = function (url, categories, cb) {
+    var input = {
+        id: this.feedlizeURL(url)
+    };
+    var userid;
+    if (categories != null) {
+        if (!Array.isArray(categories)) {
+            categories = [categories];
+        }
+        userid = this.userInfo.id;
+        categories = categories.map(function (c) {
+            var id, m, name;
+            if (typeof c === 'string') {
+                m = c.match(/^user\/[^/]+\/(.*)/);
+                name = null;
+                id = null;
+                if (!m) {
+                    name = c;
+                    id = "user/" + userid + "/category/" + c;
+                } else {
+                    name = m[1];
+                    id = c;
+                }
+                c = {
+                    id: id,
+                    name: name
+                };
+            }
+            return c;
+        });
+        input.categories = categories;
+    }
+    this.request({
+        method: 'POST',
+        path: '/v3/subscriptions',
+        form: input
+    }, cb);
+};
+module.exports = Feedly;
 },{"./gm_request":5}],5:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
@@ -165,7 +231,7 @@ module.exports = notifyMessageAsPromise;
  * LICENSE : MIT
  */
 "use strict";
-var IFTTT = require("./IFTTT-client");
+var Feedly = require("./feedly-client");
 var notifyMessageAsPromise = require("./notification");
 var config = require("./user-info");
 function subscribeRepo(repo) {
@@ -196,7 +262,7 @@ function subscribeRepo(repo) {
     });
 }
 module.exports.subscribeRepo = subscribeRepo;
-},{"./IFTTT-client":4,"./notification":6,"./user-info":8}],8:[function(require,module,exports){
+},{"./feedly-client":4,"./notification":6,"./user-info":8}],8:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
  * LICENSE : MIT

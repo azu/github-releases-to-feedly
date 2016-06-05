@@ -14,7 +14,7 @@
 "use strict";
 var config = require("./lib/user-info");
 GM_registerMenuCommand("github-releases-to-feedly - Set UserInfo", function () {
-    var result = window.prompt("Set IFTTT Maker URL: https://ifttt.com/recipes/426295-subscrib-rss-to-feedly");
+    var result = window.prompt("Set Feedly user info : json");
     config.setUserInfo(result);
 });
 if (location.href === "https://github.com/watching") {

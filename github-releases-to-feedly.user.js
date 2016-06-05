@@ -6,21 +6,46 @@
 "use strict";
 var subscriber = require("../lib/subscriber");
 var gh = require('github-url-to-object');
+var Feedly = require("../lib/feedly-client");
+var config = require("../lib/user-info");
 function onSubscribe() {
     var repoObject = gh(location.href);
     var repo = repoObject.user + "/" + repoObject.repo;
     subscriber.subscribeRepo(repo);
 }
 
+// random refresh
+function randomExChangeRefreshToken(){
+    if(Math.random() < 0.1) {
+        return;
+    }
+    setTimeout(function () {
+        refreshToken();
+    }, 1000 * 10);
+}
+function refreshToken() {
+    var userInfo = config.getUserInfo();
+    if (Object.keys(userInfo).length === 0) {
+        return;
+    }
+    var feedly = new Feedly(userInfo);
+    feedly.refreshToken(function (error) {
+        if (error) {
+            return console.error(error);
+        }
+        console.log("github-releases-to-feedly: refresh token");
+    })
+}
 module.exports = function () {
     var insertMenu = document.querySelector(".pagehead-actions");
     var button = document.createElement("button");
     button.textContent = "Subscribe";
     button.addEventListener("click", onSubscribe);
     insertMenu.appendChild(button);
+    randomExChangeRefreshToken();
 };
 
-},{"../lib/subscriber":7,"github-url-to-object":18}],2:[function(require,module,exports){
+},{"../lib/feedly-client":4,"../lib/subscriber":7,"../lib/user-info":8,"github-url-to-object":18}],2:[function(require,module,exports){
 /**
  * Created by azu on 2014/06/08.
  * LICENSE : MIT
@@ -88,7 +113,7 @@ if (location.href === "https://github.com/watching") {
 var request = require('./gm_request');
 function Feedly(userInfo) {
     if (!userInfo["access_token"] || !userInfo["id"]) {
-        alert("You have set userInfo: User script command -> github-releases-to-feedly - Set UserInfo");
+        console.warn("You have set userInfo: User script command -> github-releases-to-feedly - Set UserInfo");
     }
     this.userInfo = userInfo;
     this.baseURI = "https://cloud.feedly.com";
@@ -103,21 +128,22 @@ Feedly.prototype.request = function (parameters, callback) {
         body: JSON.stringify(form),
         headers: {
             "Content-Type": "application/json",
-            Authorization: "OAuth " + this.userInfo["access_token"]
+            "Authorization": "OAuth " + this.userInfo["access_token"]
         }
     };
     request(options, callback);
 };
 Feedly.prototype.refreshToken = function (callback) {
     var that = this;
+    console.log("refresh token:", that.userInfo);
     this.request({
         method: 'POST',
         path: '/v3/auth/token',
         form: {
-            refresh_token : that.userInfo.refresh_token,
-            client_id : "feedly",
-            client_secret : "0XP4XQ07VVMDWBKUHTJM4WUQ",
-            grant_type : "refresh_token"
+            refresh_token: that.userInfo["refresh_token"],
+            client_id: "feedly",
+            client_secret: "0XP4XQ07VVMDWBKUHTJM4WUQ",
+            grant_type: "refresh_token"
         }
     }, callback);
 
@@ -240,12 +266,14 @@ function subscribeRepo(repo) {
     var url = "https://github.com/" + repo + "/releases.atom";
     feedly.subscribe(url, categories, function (error, res, body) {
         if (error) {
-            feedly.refreshToken(function (refreshError, response, body) {
+            console.error("Error feedly.subscribe: ", JSON.parse(body));
+            feedly.refreshToken(function (refreshError, response, responseBody) {
                 if (refreshError) {
-                    console.error("Error feedly.refreshToken: ",JSON.parse(body));
+                    console.error("Error feedly.refreshToken: ", JSON.parse(responseBody));
                     throw refreshError;
                 }
-                config.setUserInfo(body);
+                console.log("get new token",responseBody);
+                config.setUserInfo(responseBody);
                 subscribeRepo(repo);
             });
             notifyMessageAsPromise("Error", {
@@ -276,7 +304,7 @@ module.exports.subscribeRepo = subscribeRepo;
  */
 "use strict";
 function getUserInfo() {
-    var value = GM_getValue("github-releases-to-feedly", "{}")
+    var value = GM_getValue("github-releases-to-feedly", "{}");
     return JSON.parse(value);
 }
 function setUserInfo(string) {
@@ -2394,13 +2422,13 @@ function hasOwnProperty(obj, prop) {
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./support/isBuffer":16,"_process":10,"inherits":9}],18:[function(require,module,exports){
-"use strict"
+'use strict'
 
-var url = require("url")
-var util = require("util")
-var isUrl = require("is-url")
+var url = require('url')
+var util = require('util')
+var isUrl = require('is-url')
 
-module.exports = function(repo_url) {
+module.exports = function (repo_url) {
   var obj = {}
 
   if (!repo_url) return null
@@ -2412,46 +2440,52 @@ module.exports = function(repo_url) {
   if (shorthand) {
     obj.user = shorthand[1]
     obj.repo = shorthand[2]
-    obj.branch = shorthand[3] || "master"
+    obj.branch = shorthand[3] || 'master'
   } else if (mediumhand) {
     obj.user = mediumhand[1]
     obj.repo = mediumhand[2]
-    obj.branch = mediumhand[3] || "master"
+    obj.branch = mediumhand[3] || 'master'
   } else if (antiquated) {
     obj.user = antiquated[1]
-    obj.repo = antiquated[2].replace(/\.git$/i, "")
-    obj.branch = "master"
+    obj.repo = antiquated[2].replace(/\.git$/i, '')
+    obj.branch = 'master'
   } else {
+    // Turn git+http URLs into http URLs
+    repo_url = repo_url.replace(/^git\+/, '')
+
     if (!isUrl(repo_url)) return null
     var parsedURL = url.parse(repo_url)
-    if (parsedURL.hostname != "github.com") return null
+
+    if (!parsedURL.hostname) return null
+    if (parsedURL.hostname !== 'github.com') return null
     var parts = parsedURL.pathname.match(/^\/([\w-_]+)\/([\w-_\.]+)(\/tree\/[\w-_\.\/]+)?(\/blob\/[\w-_\.\/]+)?/)
     // ([\w-_\.]+)
     if (!parts) return null
     obj.user = parts[1]
-    obj.repo = parts[2].replace(/\.git$/i, "")
+    obj.repo = parts[2].replace(/\.git$/i, '')
 
     if (parts[3]) {
-      obj.branch = parts[3].replace(/^\/tree\//, "").match(/[\w-_.]+\/{0,1}[\w-_]+/)[0]
+      obj.branch = parts[3].replace(/^\/tree\//, '').match(/[\w-_.]+\/{0,1}[\w-_]+/)[0]
     } else if (parts[4]) {
-      obj.branch = parts[4].replace(/^\/blob\//, "").match(/[\w-_.]+\/{0,1}[\w-_]+/)[0]
+      obj.branch = parts[4].replace(/^\/blob\//, '').match(/[\w-_.]+\/{0,1}[\w-_]+/)[0]
     } else {
-      obj.branch = "master"
+      obj.branch = 'master'
     }
-
   }
 
-  obj.tarball_url = util.format("https://api.github.com/repos/%s/%s/tarball/%s", obj.user, obj.repo, obj.branch)
+  obj.tarball_url = util.format('https://api.github.com/repos/%s/%s/tarball/%s', obj.user, obj.repo, obj.branch)
 
-  if (obj.branch === "master") {
-    obj.https_url = util.format("https://github.com/%s/%s", obj.user, obj.repo)
-    obj.travis_url = util.format("https://travis-ci.org/%s/%s", obj.user, obj.repo)
+  if (obj.branch === 'master') {
+    obj.https_url = util.format('https://github.com/%s/%s', obj.user, obj.repo)
+    obj.travis_url = util.format('https://travis-ci.org/%s/%s', obj.user, obj.repo)
+    obj.zip_url = util.format('https://github.com/%s/%s/archive/master.zip', obj.user, obj.repo)
   } else {
-    obj.https_url = util.format("https://github.com/%s/%s/tree/%s", obj.user, obj.repo, obj.branch)
-    obj.travis_url = util.format("https://travis-ci.org/%s/%s?branch=%s", obj.user, obj.repo, obj.branch)
+    obj.https_url = util.format('https://github.com/%s/%s/tree/%s', obj.user, obj.repo, obj.branch)
+    obj.travis_url = util.format('https://travis-ci.org/%s/%s?branch=%s', obj.user, obj.repo, obj.branch)
+    obj.zip_url = util.format('https://github.com/%s/%s/archive/%s.zip', obj.user, obj.repo, obj.branch)
   }
 
-  obj.api_url = util.format("https://api.github.com/repos/%s/%s", obj.user, obj.repo)
+  obj.api_url = util.format('https://api.github.com/repos/%s/%s', obj.user, obj.repo)
 
   return obj
 }
